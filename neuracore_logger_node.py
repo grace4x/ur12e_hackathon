@@ -5,6 +5,10 @@ from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory
 import neuracore as nc
 from std_srvs.srv import Trigger
+import cv2
+import numpy as np
+
+# I've just been running this with python
 
 # run "ros2 service call /start_recording std_srvs/srv/Trigger" to start recording
 # ros2 service call /stop_recording std_srvs/srv/Trigger
@@ -21,7 +25,7 @@ class NeuracoreLogger(Node):
 
         robot = nc.connect_robot(
             robot_name="UR12e",
-            urdf_path="/home/rosdev/ur12e_abs.urdf",  # from UR's official ROS2 description package
+            urdf_path="/home/rosdev/ur12e_absolute_paths.urdf",  # from UR's official ROS2 description package
             overwrite=True,
         )
 
@@ -51,6 +55,12 @@ class NeuracoreLogger(Node):
             self.joint_command_callback,
             10,
         )
+
+        # laptop camera
+        self.cap = None
+        self.create_timer(1/30, self.image_callback)
+
+
         
         self.recording = False
         self.get_logger().info('Neuracore UR12e logger ready.')
@@ -58,6 +68,7 @@ class NeuracoreLogger(Node):
         
 
     def start_recording(self):
+        self.cap = cv2.VideoCapture(0)  # open camera only when needed, default laptop camera
         nc.start_recording()
         self.recording = True
         self.get_logger().info('Recording started.')
@@ -65,7 +76,11 @@ class NeuracoreLogger(Node):
     def stop_recording(self):
         nc.stop_recording()
         self.recording = False
+        if self.cap:
+            self.cap.release()
+            self.cap = None
         self.get_logger().info('Recording stopped — uploading to Neuracore.')
+
     
     def handle_start_recording(self, request, response):
         self.start_recording()
@@ -96,6 +111,16 @@ class NeuracoreLogger(Node):
         target_positions = {name: float(val) for name, val in zip(msg.joint_names, msg.points[0].positions)}
         nc.log_joint_target_positions(target_positions, robot_name="UR12e", timestamp=t)
 
+    def image_callback(self):
+        if not self.recording:
+            return
+        ret, frame = self.cap.read()
+        if not ret:
+            return
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        nc.log_image(frame_rgb, camera_name="laptop_cam", timestamp=time.time())
+
+
 
 def main():
     rclpy.init()
@@ -107,6 +132,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        node.cap.release()
         node.destroy_node()
         rclpy.shutdown()
 
