@@ -6,10 +6,12 @@ from trajectory_msgs.msg import JointTrajectory
 import neuracore as nc
 from std_srvs.srv import Trigger
 
-
 # run "ros2 service call /start_recording std_srvs/srv/Trigger" to start recording
 # ros2 service call /stop_recording std_srvs/srv/Trigger
 
+# "rm ~/.neuracore/config.json" to reset configs
+
+DATASET_NAME = "UR12e Pick and Place"
 
 class NeuracoreLogger(Node):
     def __init__(self):
@@ -24,7 +26,7 @@ class NeuracoreLogger(Node):
         )
 
         nc.create_dataset(
-            name="UR12e Pick and Place",
+            name=DATASET_NAME,
             description="Policy training on picking up and placing",
         )
 
@@ -53,6 +55,8 @@ class NeuracoreLogger(Node):
         self.recording = False
         self.get_logger().info('Neuracore UR12e logger ready.')
 
+        
+
     def start_recording(self):
         nc.start_recording()
         self.recording = True
@@ -80,17 +84,17 @@ class NeuracoreLogger(Node):
         if not self.recording:
             return
         t = time.time()
-        positions = dict(zip(msg.name, msg.position))
-        velocities = dict(zip(msg.name, msg.velocity))
-        nc.log_joint_positions("ur12e", positions, timestamp=t)
-        nc.log_joint_velocities("ur12e", velocities, timestamp=t)
+        positions = {name: float(val) for name, val in zip(msg.name, msg.position)}
+        velocities = {name: float(val) for name, val in zip(msg.name, msg.velocity)}
+        nc.log_joint_positions(positions, robot_name="UR12e", timestamp=t)
+        nc.log_joint_velocities(velocities, robot_name="UR12e", timestamp=t)
 
     def joint_command_callback(self, msg: JointTrajectory):
         if not self.recording or not msg.points:
             return
         t = time.time()
-        target_positions = dict(zip(msg.joint_names, msg.points[0].positions))
-        nc.log_joint_target_positions("ur12e", target_positions, timestamp=t)
+        target_positions = {name: float(val) for name, val in zip(msg.joint_names, msg.points[0].positions)}
+        nc.log_joint_target_positions(target_positions, robot_name="UR12e", timestamp=t)
 
 
 def main():
@@ -103,7 +107,6 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.stop_recording()
         node.destroy_node()
         rclpy.shutdown()
 
