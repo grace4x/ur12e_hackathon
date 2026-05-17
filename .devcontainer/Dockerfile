@@ -37,6 +37,8 @@ RUN pip install neuracore --break-system-packages --ignore-installed typing-exte
 
 RUN pip install opencv-python --break-system-packages
 
+RUN pip install pymodbus --break-system-packages
+
 
 ENV SHELL="/bin/bash"
 USER $USERNAME

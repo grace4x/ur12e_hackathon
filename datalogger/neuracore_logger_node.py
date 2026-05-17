@@ -25,7 +25,7 @@ class NeuracoreLogger(Node):
 
         robot = nc.connect_robot(
             robot_name="UR12e",
-            urdf_path="/home/rosdev/ur12e_absolute_paths.urdf",  # from UR's official ROS2 description package
+            urdf_path="/home/rosdev/ros2_ws/urdf/ur12e_with_gripper.urdf",  # from UR's official ROS2 description package
             overwrite=True,
         )
 
