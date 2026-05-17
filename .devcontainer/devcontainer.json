@@ -9,25 +9,23 @@
   },
   "customizations": {
     "vscode": {
-      "extensions": [
-      ]
+      "extensions": []
     }
   },
   "containerEnv": {
-    "DISPLAY": "unix:0",
+    "DISPLAY": "host.docker.internal:0",
     "ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST",
     "ROS_DOMAIN_ID": "42"
   },
   "workspaceFolder": "/home/rosdev/ros2_ws",
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/rosdev/ros2_ws/,type=bind",
   "mounts": [
-    "source=${localEnv:USERPROFILE}/.ssh,target=/home/rosdev/.ssh,type=bind,consistency=cached"
-  ],  
+    "source=${localEnv:USERPROFILE}\\.ssh,target=/home/rosdev/.ssh,type=bind,consistency=cached"
+  ],
   "runArgs": [
     "--net=host",
     "--pid=host",
-    "--ipc=host",
-    "-e",
-    "DISPLAY=${env:DISPLAY}"
-  ]
+    "--ipc=host"
+  ],
+  "postCreateCommand": "sudo chown -R rosdev:rosdev /home/rosdev/ros2_ws"
 }
