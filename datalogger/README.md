@@ -6,4 +6,11 @@ mkdir src/
 mv datalogger ~/ros2_ws/src
 cd ../
 colcon build --symlink-install --packages-select datalogger
+source install/setup.bash
+```
+
+Move ur12e_absolute_paths.urdf to the necessary path.
+
+```bash
+ros2 run datalogger neuracore_logger_node
 ```
