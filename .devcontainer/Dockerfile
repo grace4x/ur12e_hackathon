@@ -32,8 +32,10 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-launch ros-${ROS_DISTRO}-ur ros-${ROS_DISTRO}-ros2-control && \
     apt-get autoremove -y
 
-# ADDED - neuracore install
+# ADDED - neuracore, opencv install
 RUN pip install neuracore --break-system-packages --ignore-installed typing-extensions
+
+RUN pip install opencv-python --break-system-packages
 
 
 ENV SHELL="/bin/bash"
