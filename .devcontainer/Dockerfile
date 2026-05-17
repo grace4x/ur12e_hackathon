@@ -32,6 +32,10 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-launch ros-${ROS_DISTRO}-ur ros-${ROS_DISTRO}-ros2-control && \
     apt-get autoremove -y
 
+# ADDED - neuracore install
+RUN pip install neuracore --break-system-packages --ignore-installed typing-extensions
+
+
 ENV SHELL="/bin/bash"
 USER $USERNAME
 
