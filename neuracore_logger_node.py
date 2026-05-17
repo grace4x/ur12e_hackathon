@@ -4,6 +4,11 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory
 import neuracore as nc
+from std_srvs.srv import Trigger
+
+
+# run "ros2 service call /start_recording std_srvs/srv/Trigger" to start recording
+# ros2 service call /stop_recording std_srvs/srv/Trigger
 
 
 class NeuracoreLogger(Node):
@@ -57,6 +62,19 @@ class NeuracoreLogger(Node):
         nc.stop_recording()
         self.recording = False
         self.get_logger().info('Recording stopped — uploading to Neuracore.')
+    
+    def handle_start_recording(self, request, response):
+        self.start_recording()
+        response.success = True
+        response.message = 'Recording started.'
+        return response
+
+    def handle_stop_recording(self, request, response):
+        self.stop_recording()
+        response.success = True
+        response.message = 'Recording stopped.'
+        return response
+
 
     def joint_state_callback(self, msg: JointState):
         if not self.recording:
