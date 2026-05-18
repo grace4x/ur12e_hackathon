@@ -93,3 +93,13 @@ ros2 launch ur_robot_driver ur_control.launch.py \
   kinematics_params_file:="${PWD}/my_robot_calibration.yaml"
 ```
 
+
+
+# Notes
+
+Install ffmpeg for faster encoding
+
+```bash
+neuracore data-daemon stop
+export NCD_BANDWIDTH_LIMIT="50mb"
+```
