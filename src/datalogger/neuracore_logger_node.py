@@ -17,6 +17,11 @@ class NeuracoreLogger(Node):
     def __init__(self):
         super().__init__('neuracore_logger')
         nc.login()
+        # Cancel any lingering recording from a previous run
+        try:
+            nc.stop_recording()
+        except Exception:
+            pass
         robot = nc.connect_robot(
             robot_name="UR12e",
             urdf_path="/home/rosdev/ros2_ws/ur12e_absolute_paths.urdf",  # from UR's official ROS2 description package
@@ -95,7 +100,7 @@ class NeuracoreLogger(Node):
         if not ret:
             return
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        nc.log_image(frame_rgb, camera_name="laptop_cam", timestamp=time.time())
+        nc.log_rgb(name="laptop_cam", rgb=frame_rgb, timestamp=time.time())
 def main():
     rclpy.init()
     node = NeuracoreLogger()
@@ -104,7 +109,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.cap.release()
+        node.cap.release()  # ← will crash if cap is None (recording never started)
         node.destroy_node()
         rclpy.shutdown()
 if __name__ == '__main__':
