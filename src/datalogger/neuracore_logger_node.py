@@ -12,8 +12,7 @@ import numpy as np
 # run "ros2 service call /start_recording std_srvs/srv/Trigger" to start recording
 # ros2 service call /stop_recording std_srvs/srv/Trigger
 # "rm ~/.neuracore/config.json" to reset configs
-
-DATASET_NAME = "UR12e Pick and Place"
+DATASET_NAME = "UR12e Pick and Place new"
 DEFAULT_CAMERA_ENABLED = True
 
 class NeuracoreLogger(Node):
@@ -71,7 +70,7 @@ class NeuracoreLogger(Node):
 
     def start_recording(self):
         if self.camera_enabled:
-            self.cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(4)
             if not self.cap.isOpened():
                 self.get_logger().warn('Camera could not be opened — logging without camera.')
                 self.cap = None
